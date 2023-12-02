@@ -1,5 +1,5 @@
 fn main() {
-    let input: Vec<String> = include_str!("../data/current.txt")
+    let input: Vec<String> = include_str!("../data/day1.txt")
         .lines()
         .map(|s| s.to_string())
         .collect();
@@ -9,19 +9,54 @@ fn main() {
 
     find_first_last(&mut first);
 
-    let digits = ["zero", "one", "two", "there", "four", "five", "six", "seven", "eight", "nine"];
+    let digits = vec!["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+
 
     for line in second.iter_mut() {
-        for _ in 0..5 {
-            for (i, digit) in digits.iter().enumerate() {
-                if line.contains(*digit) {
-                    *line = line.replace(digit, &i.to_string());
+        let mut ret: Vec<(usize, &str)> = vec![];
+        let match_idx = line.clone();
+        for digit in &digits {
+            let mut idcs: Vec<(usize, &str)> = match_idx.match_indices(digit).collect();
+            if !idcs.is_empty() {
+                idcs.sort();
+                for item in idcs {
+                    ret.push(item);
                 }
             }
         }
+        ret.sort();
+        println!("retl {ret:?}");
+        println!("line {line:?}");
+        for item in ret.iter().enumerate() {
+            let what = item.1.1;
+            *line = line.replace(what, digits.iter().position(|x| *x==what).unwrap().to_string().as_str());
+        }
+        println!("line {line:?}");
+        println!("------------");
     }
 
     find_first_last(&mut second);
+}
+
+trait IsEmpty {
+    fn is_empty(&self) -> bool;
+}
+
+trait Sort {
+    fn sort(&mut self) -> &mut Self;
+}
+
+impl IsEmpty for (usize, &str) {
+    fn is_empty(&self) -> bool {
+        self.1.is_empty()
+    }
+}
+
+impl Sort for Vec<(usize, &str)> {
+    fn sort(&mut self) -> &mut Self {
+        self.sort_by_key(|d| d.0);
+        self 
+    }
 }
 
 fn find_first_last(input: &mut Vec<String>) -> () {
@@ -35,20 +70,17 @@ fn find_first_last(input: &mut Vec<String>) -> () {
         parts.retain(|&part| part.is_digit(10));
 
 
-        println!("{line:?}");
-        println!("{parts:?}");
-
         if parts.len() == 1 { 
             let first_last: u32 = (parts[0].to_string().as_str().to_owned() + parts[0].to_string().as_str()).parse().unwrap();
-            println!("first_last = {:?}", first_last);
+            println!("{parts:?} {line:?} {first_last:?}");
             sum += first_last;
         } else if parts.len() == 0 {
             continue
         } else {
             let first_last: u32 = (String::from(*parts.clone().first().unwrap()) + parts.clone().last().unwrap().to_string().as_str()).parse().unwrap();
-            println!("first_last = {:?}", first_last);
+            println!("{parts:?} {line:?} {first_last:?}");
             sum += first_last;
         }
     }
-    eprintln!("sum of calibration values = {:?}", sum); 
+    println!("sum of calibration values = {:?}", sum); 
 }
