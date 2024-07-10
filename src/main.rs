@@ -1,69 +1,52 @@
-use std::str::FromStr;
-
 fn main() {
-    let input = include_str!("../data/day2.txt");
-    let mut answer: u32 = 0;
-    for item in input.lines() {
-        let game: Vec<&str> = item.split(":").collect();
-        let mut attrs: Vec<&str> = game[1].clone().split(";").collect();
-        let hand: Vec<&str> = attrs.clone();
-        
+    let input: Vec<String> = include_str!("../data/current.txt")
+        .lines()
+        .map(|x| x.to_string())
+        .collect();
 
-        let mut ID: u32;
-        let mut viable: bool = false;
+    // Process seeds
+    let seeds: Vec<u64> = input[0]
+        .split_whitespace()
+        .skip(1)  // Skip the "seeds:" label
+        .filter_map(|s| s.parse().ok())
+        .collect();
 
-        'outer: for item in hand {
-            let mut colors: Vec<&str> = item.split(",").collect();
-            let mut colors: Vec<String> = colors.iter().map(|X| X.to_string()).collect();
-            println!("======");
-            for color in colors.iter_mut() {
-                if let Some(red) = color.trim().strip_suffix(" red") {
-                    //println!("{red:?}");
-                    //println!("{item:?}");
+    // Process maps
+    let mut current_map = Vec::new();
+    let mut maps = Vec::new();
 
-                    let red: u32 = FromStr::from_str(red).unwrap();
-
-                    if red <= 12 {
-                        println!("Red in check");
-                        viable = true;
-                    } else {
-                        println!("red overflow");
-                        viable = false;
-                        break 'outer;
-                    }
-                } 
-                if let Some(blue) = color.trim().strip_suffix(" blue") {
-                    let blue: u32 = FromStr::from_str(blue).unwrap();
-
-                    if blue <= 14 {
-                        viable = true;
-                    } else {
-                        viable = false;
-                        break 'outer;
-                    }
-                } 
-                if let Some(green) = color.trim().strip_suffix(" green") {
-                    let green: u32 = FromStr::from_str(green).unwrap();
-
-                    if green <= 13 {
-                        viable = true;
-                    } else {
-                        viable = false;
-                        break 'outer;
-                    }
-                } 
+    for line in &input[1..] {
+        if line.is_empty() {
+            if !current_map.is_empty() {
+                maps.push(current_map);
+                current_map = Vec::new();
             }
-            if viable == false {
-                continue;
-            }
-        }
-
-        if viable == true {
-            ID = FromStr::from_str(game[0].strip_prefix("Game ").unwrap()).unwrap(); 
-            answer += ID; 
-
-            println!("Adding game {ID:?}\n{item:?}");
+        } else {
+            current_map.push(line);
         }
     }
-    println!("{answer:?}");
+
+    // Don't forget to push the last map
+    if !current_map.is_empty() {
+        maps.push(current_map);
+    }
+    println!("{:?}", maps);
+    // Process each map
+    for map in maps {
+        let map_name = map[0].trim_end_matches(" map:");
+        
+        let mappings: Vec<(u64, u64, u64)> = map[1..]
+            .iter()
+            .map(|line| {
+                let nums: Vec<u64> = line
+                    .split_whitespace()
+                    .map(|s| s.parse().unwrap())
+                    .collect();
+                (nums[0], nums[1], nums[2])
+            })
+            .collect();
+
+        println!("Map: {}", map_name);
+        println!("Mappings: {:?}", mappings);
+    }
 }
