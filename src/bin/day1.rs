@@ -29,7 +29,7 @@ fn main() {
         ret.sort();
         for item in ret.iter().enumerate() {
             let mut what = item.1.clone();
-            *line = line.replace(&what, leet_map.get(what).unwrap());
+            *line = line.replace(what.1, leet_map.get(what.1).unwrap());
         }
     }
 
@@ -57,7 +57,7 @@ impl Sort for Vec<(usize, &str)> {
     }
 }
 
-fn find_first_last(input: &mut Vec<String>) -> () {
+fn find_first_last(input: &mut Vec<String>) {
     let mut sum: u32 = 0;
     for line in input.iter_mut() {
         if line.is_empty() {
