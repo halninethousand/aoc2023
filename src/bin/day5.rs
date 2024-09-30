@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 fn main() {
-    let input: Vec<String> = include_str!("../../data/current.txt")
+    let input: Vec<String> = include_str!("../../data/day5.txt")
         .lines()
         .map(|x| x.to_string())
         .collect();
@@ -14,6 +14,7 @@ fn main() {
     
     let mut current_map = Vec::new();
     let mut maps = Vec::new();
+
     for line in &input[1..] {
         if line.is_empty() {
             if !current_map.is_empty() {
@@ -24,15 +25,15 @@ fn main() {
             current_map.push(line);
         }
     }
+
     if !current_map.is_empty() {
         maps.push(current_map);
     }
-    
+
     println!("Seeds: {:?}", seeds);
  
     let processed_maps: Vec<HashMap<u64, u64>> = maps.iter().map(|map| {
         let map_name = map[0].trim_end_matches(" map:");
-        
         let mappings: Vec<(u64, u64, u64)> = map[1..]
             .iter()
             .map(|line| {
@@ -51,13 +52,14 @@ fn main() {
                 hmap.insert(source_start + i, dest_start + i);
             }
         }
-        
+
         fill_default_mappings(&mut hmap);
         
         println!("Map: {}", map_name);
         println!("Mappings: {:?}", mappings);
         
         hmap
+
     }).collect();
 
     let final_locations: Vec<u64> = seeds.iter().map(|&seed| {
